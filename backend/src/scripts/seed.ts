@@ -93,10 +93,11 @@ const seedTestUsers = async () => {
 
     for (const user of testUsers) {
       const hashedPassword = await bcrypt.hash(user.password, 10);
-      await query(
-        "INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3)",
-        [user.email, hashedPassword, user.name]
-      );
+      await query("INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3)", [
+        user.email,
+        hashedPassword,
+        user.name,
+      ]);
     }
 
     console.log(`✅ Successfully seeded ${testUsers.length} test users!`);
@@ -119,4 +120,3 @@ const main = async () => {
 };
 
 main();
-

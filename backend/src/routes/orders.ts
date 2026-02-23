@@ -93,9 +93,7 @@ router.post(
       let total = 0;
       for (const item of items) {
         const id = item.product_id || item.productId;
-        const productResult = await client.query("SELECT price FROM products WHERE id = $1", [
-          id,
-        ]);
+        const productResult = await client.query("SELECT price FROM products WHERE id = $1", [id]);
 
         if (productResult.rows.length === 0) {
           throw new AppError(404, `Product ${id} not found`);
@@ -115,9 +113,7 @@ router.post(
       // Create order items
       for (const item of items) {
         const id = item.product_id || item.productId;
-        const productResult = await client.query("SELECT price FROM products WHERE id = $1", [
-          id,
-        ]);
+        const productResult = await client.query("SELECT price FROM products WHERE id = $1", [id]);
 
         await client.query(
           "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)",
