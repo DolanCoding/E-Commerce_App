@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
+import { testConnection } from "./api/client";
 import { Disclaimer } from "./pages/Disclaimer";
 import { Home } from "./pages/Home";
 import { Products } from "./pages/Products";
@@ -26,6 +28,11 @@ import "./App.css";
 function AppContent() {
   const location = useLocation();
   const isDisclaimer = location.pathname === "/";
+
+  useEffect(() => {
+    console.log("🚀 App initialized - Testing backend connection...");
+    testConnection();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
