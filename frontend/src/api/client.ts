@@ -71,8 +71,9 @@ client.interceptors.response.use(
 // Test connection on load
 export async function testConnection() {
   try {
-    console.log(`🧪 Testing connection to ${API_BASE_URL}/health`);
-    const response = await client.get("/health");
+    const healthUrl = API_BASE_URL.replace("/api", "") + "/health";
+    console.log(`🧪 Testing connection to ${healthUrl}`);
+    const response = await axios.get(healthUrl);
     console.log(`✅ Health check passed:`, response.data);
     return true;
   } catch (error) {
