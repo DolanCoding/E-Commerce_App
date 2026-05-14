@@ -37,9 +37,79 @@ export async function initializeDatabase() {
 
     // Create tables if they don't exist
     await createTables();
+
+    // Auto-seed database if products table is empty
+    await autoSeedIfEmpty();
   } catch (error) {
     console.error("Database initialization error:", error);
     throw error;
+  }
+}
+
+async function autoSeedIfEmpty() {
+  try {
+    const forceSeed = process.env.FORCE_SEED_DATABASE === "true";
+
+    // Check if products table has any data
+    const countResult = await pool.query("SELECT COUNT(*) FROM products");
+    const productCount = parseInt(countResult.rows[0].count, 10);
+
+    if (forceSeed) {
+      console.log("FORCE_SEED_DATABASE is enabled. Clearing and reseeding...");
+      await pool.query("DELETE FROM products");
+      await seedDatabase();
+    } else if (productCount === 0) {
+      console.log("No products found. Auto-seeding database...");
+      await seedDatabase();
+    } else {
+      console.log(`Database already has ${productCount} products. Skipping seed.`);
+    }
+  } catch (error) {
+    console.error("Auto-seed check error:", error);
+    // Don't throw - let server continue even if seed fails
+  }
+}
+
+async function seedDatabase() {
+  try {
+    console.log("Fetching products from Fake Store API...");
+
+    const response = await fetch("https://fakestoreapi.com/products");
+    const fakeStoreProducts = (await response.json()) as any[];
+
+    const products = fakeStoreProducts.map((product) => ({
+      name: product.title,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+      category: product.category.charAt(0).toUpperCase() + product.category.slice(1),
+      rating: product.rating.rate,
+      reviews: product.rating.count,
+      in_stock: Math.random() > 0.2,
+    }));
+
+    console.log(`Fetched ${products.length} products. Inserting into database...`);
+
+    for (const product of products) {
+      await pool.query(
+        "INSERT INTO products (name, description, price, image, category, rating, reviews, in_stock) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+        [
+          product.name,
+          product.description,
+          product.price,
+          product.image,
+          product.category,
+          product.rating,
+          product.reviews,
+          product.in_stock,
+        ]
+      );
+    }
+
+    console.log("✓ Database seeded successfully with products");
+  } catch (error) {
+    console.error("Database seeding error:", error);
+    // Don't throw - server should still start
   }
 }
 
