@@ -56,6 +56,16 @@ export const Login = () => {
             <p className="text-gray-600">Sign in to your ShopHub account</p>
           </div>
 
+          {/* Test Credentials Hint */}
+          <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+            <p className="text-sm font-semibold text-blue-900 mb-3">💡 Demo Account</p>
+            <div className="space-y-2 text-sm text-blue-800">
+              <p><span className="font-medium">Email:</span> demo@example.com</p>
+              <p><span className="font-medium">Password:</span> demo123456</p>
+            </div>
+            <p className="text-xs text-blue-700 mt-3">Other test accounts: test@example.com, john@example.com (same password)</p>
+          </div>
+
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 text-red-800 rounded-lg text-sm font-medium">
