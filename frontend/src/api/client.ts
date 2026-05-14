@@ -73,11 +73,12 @@ export async function testConnection() {
   try {
     const healthUrl = API_BASE_URL.replace("/api", "") + "/health";
     console.log(`🧪 Testing connection to ${healthUrl}`);
-    const response = await axios.get(healthUrl);
-    console.log(`✅ Health check passed:`, response.data);
+    const response = await fetch(healthUrl);
+    const data = await response.json();
+    console.log(`✅ Health check passed:`, data);
     return true;
   } catch (error) {
-    console.error(`❌ Health check failed - Server may not be running`);
+    console.error(`❌ Health check failed - Server may not be running`, error);
     return false;
   }
 }
