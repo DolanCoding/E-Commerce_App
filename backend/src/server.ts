@@ -12,14 +12,14 @@ import { errorHandler } from "./middleware/errorHandler";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = parseInt(process.env.PORT || "5000", 10);
 
 // Configure CORS for production and development
 const allowedOrigins = [
   "http://localhost:5173", // Local development
   "http://localhost:3000", // Alternative local port
-  process.env.FRONTEND_URL, // Production frontend URL
-].filter(Boolean);
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+];
 
 app.use(
   cors({
