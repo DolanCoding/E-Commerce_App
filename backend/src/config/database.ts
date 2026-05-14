@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 
@@ -54,15 +55,30 @@ async function autoSeedIfEmpty() {
     const countResult = await pool.query("SELECT COUNT(*) FROM products");
     const productCount = parseInt(countResult.rows[0].count, 10);
 
+    // Check if users table has any data
+    const usersResult = await pool.query("SELECT COUNT(*) FROM users");
+    const userCount = parseInt(usersResult.rows[0].count, 10);
+
     if (forceSeed) {
       console.log("FORCE_SEED_DATABASE is enabled. Clearing and reseeding...");
       await pool.query("DELETE FROM products");
+      await pool.query("DELETE FROM users");
       await seedDatabase();
-    } else if (productCount === 0) {
-      console.log("No products found. Auto-seeding database...");
-      await seedDatabase();
+      await seedUsers();
     } else {
-      console.log(`Database already has ${productCount} products. Skipping seed.`);
+      if (productCount === 0) {
+        console.log("No products found. Auto-seeding products...");
+        await seedDatabase();
+      } else {
+        console.log(`Database already has ${productCount} products.`);
+      }
+
+      if (userCount === 0) {
+        console.log("No users found. Auto-seeding test users...");
+        await seedUsers();
+      } else {
+        console.log(`Database already has ${userCount} users.`);
+      }
     }
   } catch (error) {
     console.error("Auto-seed check error:", error);
@@ -110,6 +126,47 @@ async function seedDatabase() {
   } catch (error) {
     console.error("Database seeding error:", error);
     // Don't throw - server should still start
+  }
+}
+
+async function seedUsers() {
+  try {
+    console.log("Seeding test users...");
+
+    const testUsers = [
+      {
+        email: "demo@example.com",
+        password: "demo123456",
+        name: "Demo User",
+      },
+      {
+        email: "test@example.com",
+        password: "test123456",
+        name: "Test User",
+      },
+      {
+        email: "john@example.com",
+        password: "john123456",
+        name: "John Doe",
+      },
+    ];
+
+    for (const user of testUsers) {
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+
+      await pool.query(
+        "INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) ON CONFLICT (email) DO NOTHING",
+        [user.email, hashedPassword, user.name]
+      );
+    }
+
+    console.log(`✓ Created ${testUsers.length} test users`);
+    console.log("   Test login credentials:");
+    testUsers.forEach((user) => {
+      console.log(`   • Email: ${user.email} | Password: ${user.password}`);
+    });
+  } catch (error) {
+    console.error("User seeding error:", error);
   }
 }
 
