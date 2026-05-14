@@ -15,16 +15,11 @@ const app = express();
 const PORT = parseInt(process.env.PORT || "5000", 10);
 
 // Configure CORS for production and development
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      process.env.FRONTEND_URL || "",
-    ].filter(Boolean),
-    credentials: true,
-  })
-);
+console.log("CORS Configuration:");
+console.log(`  NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`  FRONTEND_URL: ${process.env.FRONTEND_URL}`);
+
+app.use(cors());  // Allow all origins temporarily for debugging
 
 // Middleware
 app.use(express.json());
